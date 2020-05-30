@@ -15,12 +15,12 @@ class College extends BaseController {
 		foreach ($query->getResultArray() as $row) {
 
 			$tmp = array();
-			$tmp["id"] = $row["collegesid"];
-			$tmp["name"] = $row["name"];
-			$tmp["logo"] = $row["logo"];
+			$tmp["id"] = $row["college_id"];
+			$tmp["name"] = $row["college_name"];
+			$tmp["logo"] = $row["college_logo"];
 
 			//查当个大学的标签
-			$getTagsSql = "SELECT tagname FROM tb_colleges_tag  WHERE collegesid = ? ";
+			$getTagsSql = "SELECT tagname FROM tb_colleges_tag  WHERE college_id = ? ";
 			$getTagsQuery = $this->db->query($getTagsSql, [$row["collegesid"]]);
 
 			$tags = array();
@@ -37,15 +37,15 @@ class College extends BaseController {
 	}
 
 	public function getcollegesData() {
-		$arrayName = array('name' => "清华大学", "address" => "beijing");
+		$arrayName = array('college_name' => "清华大学", "college_addr" => "beijing");
 		echo json_encode($arrayName, true);
 	}
 
-	public function getcollegesDetail($collegeid) {
+	public function getcollegesDetail($college_id) {
 
-		$sql = "SELECT * FROM tb_colleges  WHERE collegesid = ? ";
+		$sql = "SELECT * FROM tb_colleges  WHERE college_id = ? ";
 
-		$query = $this->db->query($sql, [$collegeid]);
+		$query = $this->db->query($sql, [$college_id]);
 
 		$res = array();
 
@@ -55,8 +55,8 @@ class College extends BaseController {
 
 		}
 
-		$sql = "SELECT tagname FROM tb_colleges_tag  WHERE collegesid = ? ";
-		$query = $this->db->query($sql, [$collegeid]);
+		$sql = "SELECT tagname FROM tb_colleges_tag  WHERE college_id = ? ";
+		$query = $this->db->query($sql, [$college_id]);
 
 		$tags = array();
 		foreach ($query->getResultArray() as $row) {
