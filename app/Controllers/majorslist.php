@@ -1,103 +1,100 @@
 <?php namespace App\Controllers;
 
-class majorslist extends BaseController
-{
-    public $db = "";
+class majorslist extends BaseController {
+	public $db = "";
 
-    public function __construct()
-    {
-        $this->db = \Config\Database::connect();
-    }
+	public function __construct() {
+		$this->db = \Config\Database::connect();
+	}
 
 //获取大类小类
-    public function getmajorsClassList($type = 0)
-    {
+	public function getmajorsClassList($type = 0) {
 
-        $majorBatch = "本科批次";
-        if ($type == 'Specialty') {
-            $majorBatch = "专科批次";
-        }
+		$majorBatch = 'Undergraduate';
 
-        $majorslist = array();
+		if ($type == 'Specialty') {
+			$majorBatch = $type;
+		}
 
-        $sql1   = "SELECT DISTINCT  major_class FROM `tb_majorclass` WHERE major_batch = ?";
-        $query1 = $this->db->query($sql1, [$majorBatch]);
+		$majorslist = array();
 
-        foreach ($query1->getResultArray() as $row) {
-            $name1 = $row["major_class"];
-            $item1 = array(
-                "name"  => $name1,
-                "level" => 0,
-                "items" => array(),
-            );
+		$sql1 = "SELECT DISTINCT  major_class FROM `tb_majorclass` WHERE major_batch = ?";
+		$query1 = $this->db->query($sql1, [$majorBatch]);
 
-            $sql2 = "SELECT DISTINCT class_id,  major_classkid FROM `tb_majorclass` WHERE major_class = ? and  major_batch = ?";
+		foreach ($query1->getResultArray() as $row) {
 
-            $query2 = $this->db->query($sql2, [$name1, $majorBatch]);
+			$name1 = $row["major_class"];
+			$item1 = array(
+				"name" => $name1,
+				"level" => 0,
+				"items" => array(),
+			);
 
-            foreach ($query2->getResultArray() as $row) {
-                $name2    = $row["major_classkid"];
-                $class_id = $row["class_id"];
-                $item2    = array(
-                    "name"  => $name2,
-                    "level" => 1,
-                    "id"    => $class_id,
-                );
+			$sql2 = "SELECT DISTINCT class_id,  major_classkid FROM `tb_majorclass` WHERE major_class = ? and  major_batch = ?";
 
-                $item1["items"][] = $item2;
+			$query2 = $this->db->query($sql2, [$name1, $majorBatch]);
 
-            }
+			foreach ($query2->getResultArray() as $row) {
+				$name2 = $row["major_classkid"];
+				$class_id = $row["class_id"];
+				$item2 = array(
+					"name" => $name2,
+					"level" => 1,
+					"id" => $class_id,
+				);
 
-            $majorslist[] = $item1;
-        }
-        echo json_encode($majorslist, true);
-    }
+				$item1["items"][] = $item2;
 
-    public function getmajorsList($classid)
-    {
+			}
 
-        // [{
-        //   nameclass:"基本专业",
-        //   items: [{
-        //     id:100,
-        //     name: "智能电网信息工程"
-        //   }, {
-        //     id: 101,
-        //     name: "光源与照明"
-        //   }, {
-        //       id: 103,
-        //     name: "电气工程与智能控制"
-        //   }]
-        // },]
-        $majorslist = array();
-        $sql        = "SELECT DISTINCT type FROM `tb_major` where  classid =  ?";
-        $query      = $this->db->query($sql, [$classid]);
-        $res        = [];
-        foreach ($query->getResultArray() as $row) {
-            $items              = array();
-            $items['nameclass'] = $row['type'];
-            $majors             = array();
-            $sql                = "SELECT * FROM`tb_major`where classid =  ?  and type =  ? ";
-            $query              = $this->db->query($sql, [$classid, $row['type']]);
-            foreach ($query->getResultArray() as $major) {
-                $tmp         = array();
-                $tmp["id"]   = $major["id"];
-                $tmp["name"] = $major["name"];
-                $majors[]    = $tmp;
-            }
-            $items["items"] = $majors;
-            $res[]          = $items;
-        }
-        echo json_encode($res, true);
-    }
+			$majorslist[] = $item1;
+		}
+		echo json_encode($majorslist, true);
+	}
 
-    public function getmajorDetail($majorid)
-    {
+	public function getmajorsList($classid) {
 
-        $sql   = "select * from tb_major t, tb_majorclass c where t.classid = c.class_id and t.id =  ?";
-        $query = $this->db->query($sql, [$majorid]);
-        $res   = $query->getResultArray();
-        echo json_encode($res, true);
-    }
+		// [{
+		//   nameclass:"基本专业",
+		//   items: [{
+		//     id:100,
+		//     name: "智能电网信息工程"
+		//   }, {
+		//     id: 101,
+		//     name: "光源与照明"
+		//   }, {
+		//       id: 103,
+		//     name: "电气工程与智能控制"
+		//   }]
+		// },]
+		$majorslist = array();
+		$sql = "SELECT DISTINCT type FROM `tb_major` where  classid =  ?";
+		$query = $this->db->query($sql, [$classid]);
+		$res = [];
+		foreach ($query->getResultArray() as $row) {
+			$items = array();
+			$items['nameclass'] = $row['type'];
+			$majors = array();
+			$sql = "SELECT * FROM`tb_major`where classid =  ?  and type =  ? ";
+			$query = $this->db->query($sql, [$classid, $row['type']]);
+			foreach ($query->getResultArray() as $major) {
+				$tmp = array();
+				$tmp["id"] = $major["id"];
+				$tmp["name"] = $major["name"];
+				$majors[] = $tmp;
+			}
+			$items["items"] = $majors;
+			$res[] = $items;
+		}
+		echo json_encode($res, true);
+	}
+
+	public function getmajorDetail($majorid) {
+
+		$sql = "select * from tb_major t, tb_majorclass c where t.classid = c.class_id and t.id =  ?";
+		$query = $this->db->query($sql, [$majorid]);
+		$res = $query->getResultArray();
+		echo json_encode($res, true);
+	}
 
 }
