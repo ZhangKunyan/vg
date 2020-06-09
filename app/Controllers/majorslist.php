@@ -10,13 +10,18 @@ class majorslist extends BaseController
     }
 
 //获取大类小类
-    public function getmajorsClassList()
+    public function getmajorsClassList($type = 0)
     {
+
+        $majorBatch = "本科批次";
+        if ($type == 'Specialty') {
+            $majorBatch = "专科批次";
+        }
 
         $majorslist = array();
 
-        $sql1   = "SELECT DISTINCT  major_class FROM `tb_majorclass` WHERE 1";
-        $query1 = $this->db->query($sql1);
+        $sql1   = "SELECT DISTINCT  major_class FROM `tb_majorclass` WHERE major_batch = ?";
+        $query1 = $this->db->query($sql1, [$majorBatch]);
 
         foreach ($query1->getResultArray() as $row) {
             $name1 = $row["major_class"];
@@ -26,9 +31,9 @@ class majorslist extends BaseController
                 "items" => array(),
             );
 
-            $sql2 = "SELECT DISTINCT class_id,  major_classkid FROM `tb_majorclass` WHERE major_class = ? ";
+            $sql2 = "SELECT DISTINCT class_id,  major_classkid FROM `tb_majorclass` WHERE major_class = ? and  major_batch = ?";
 
-            $query2 = $this->db->query($sql2, $name1);
+            $query2 = $this->db->query($sql2, [$name1, $majorBatch]);
 
             foreach ($query2->getResultArray() as $row) {
                 $name2    = $row["major_classkid"];
